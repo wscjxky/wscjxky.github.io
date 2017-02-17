@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>MyScrapy</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="js/countuser.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.js" ></script>
+    <script src="js/bootstrap-treeview.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style type="text/css">
+
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: 0 0
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 5px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #666
+        }
+
+        ::-webkit-scrollbar-corner {
+            background-color: #535353
+        }
+
+
+        body ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        body ::-webkit-scrollbar-thumb {
+            background-color: #ddd
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ::selection {
+            background: #222;
+            color: white;
+        }
+
+        .sidebar {
+            float: left;
+            width: 30%;
+            box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+            padding: 20px 20px 20px 20px;
+        // background-color: green;
+            margin-left: 10px;
+        }
+
+        .display {
+            float: right;
+            width: 65%;
+        // background-color: orange;
+            margin-right: 10px;
+        }
+
+
+        a {
+            color: #333;
+        }
+
+        p {
+            margin: 20px 0;
+        }
+
+        ul,
+        ol {
+        //list-style: none;
+        }
+
+        body {
+            font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", arial, sans-serif;
+            color: #333;
+            text-shadow: 4px 4px 4px #aaa;
+            position: relative;
+            margin: 20px auto 20px auto;
+            width: auto;
+            text-align: center;
+            position: relative;
+        //top: -10px;
+        //opacity: 0;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                margin-top: 20px;
+                width: auto;
+            }
+
+            .sidebar {
+                float: none;
+                width: auto;
+                margin-left: none;
+            }
+
+            .display {
+                float: none;
+                width: auto;
+                margin-right: none;
+            }
+        }
+
+        hr {
+            margin: 40px 0;
+            height: 3px;
+            border: none;
+            margin-left: auto;
+            margin-right: auto;
+            width: auto;
+            position: relative;
+            display: block;
+            box-sizing: content-box;
+            background-color: #ddd;
+            background-image: repeating-linear-gradient(-45deg, #fff, #fff 4px, transparent 4px, transparent 8px);
+        }
+
+        .inputForm {
+            font-size: 20px;
+            border-radius: 5px;
+            display: inline-block;
+            border: 3px solid #555;
+            padding: 20px 20px 20px 20px;
+            margin: 20px 20px 20px 20px;
+        }
+
+        .inputForm input {
+            font-size: 20px;
+        }
+
+        button {
+            font-size: 20px;
+            padding: 10px 10px 10px 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #showcontent {
+            position: relative;
+
+        }
+    </style>
+    <script type="text/javascript">
+
+        function showkey() {
+            // Magic numbers! DO NOT EDIT!
+            var img=new Image();
+            img.src='view.jpg';
+            img.onload=function () {
+                var canvas=document.getElementById('canvas');
+                var firstname=$('#text_beg').val();
+                var secname=$('#text_sec').val();
+                var thrname=$('#text_thr').val();
+                canvas.width=img.width;
+                canvas.height=img.height;
+                var con=canvas.getContext('2d');
+                con.clearRect(0,0,canvas.width,canvas.height);
+                con.drawImage(img,0,0,img.width,img.height);
+                con.font = "25px 宋体";
+                con.fillText(firstname, 80, 130);
+                con.fillText(secname, 370, 130);
+                con.fillText(thrname, 720, 130);
+            };}
+        function perview() {
+            beginner=$("#text_beg").val();
+            ender=$("#text_end").val();
+            $.post("php/excel/excel.php",
+                {
+                    beginner:beginner,
+                    ender:ender
+                },
+                function (data) {
+                    if(data=='error')
+                        alert('找不到相关数据，请核实后再试试');
+                    else {
+                        //生成完完毕
+                        getAssort();
+                        $('#waiting_ico').removeClass('fa fa-spinner fa-spin');
+                        $('#success_info').append('生成完毕请下载');
+
+                        $('#download').show();
+                    }
+                });
+         }
+        function getAssort() {
+
+            beginner=$("#text_beg").val();
+            ender=$("#text_end").val();
+            secname=$("#text_sec").val();
+            $.post("php/getAssortname.php",
+                {
+                    beginner:beginner,
+                    ender:ender,
+                    secname:secname
+                },
+                function (data) {
+                    JSON_data=eval(data);
+                    showContent(JSON_data);
+            });
+        }
+
+        function download() {
+            window.location='php/excel/download.php';
+            $('#waiting_info').hide();
+        }
+        function showContent(Json_data) {
+            $('#treeview').treeview({
+
+                expandIcon: 'glyphicon glyphicon-chevron-right',
+                collapseIcon: 'glyphicon glyphicon-chevron-down',
+                nodeIcon: 'glyphicon glyphicon-unchecked',
+                data: Json_data
+            });
+        }
+
+    </script>
+</head>
+
+<body>
+
+<h1 style="font-size:55px;font-weight:bold">Scrapy</h1>
+<br>
+<div id="showcontent">
+
+    <div class="col-sm-2" >
+        <h3>分类列表浏览</h3>
+        <br>
+        <div id="treeview" class="treeview" style="font-size:19px"></div>
+
+    </div>
+</div>
+<div class="sidebar">
+
+    <h3>在下方输入需要收集的内容，不填表示全选</h3>
+    <p><i id="waiting_ico" style="font-size:80px"></i></p>
+    <p id="success_info"></p>
+    <p><button id="download" onclick="download()" class="btn btn-success">下载文件</button></p>
+    <form class="inputForm" id="inputForm" >
+        <p>一级分类</p>
+        <input type="text" id="text_beg" value="土建" class="form-control" onkeyup="showkey()">
+        <input type="text" id="text_end" value="装饰" class="form-control" onkeyup="showkey()">
+        <p>二级分类</p>
+        <input type="text" id="text_sec"  class="form-control" onkeyup="showkey()">
+        <p>三级分类</p>
+        <input type="text" id="text_thr" class="form-control" onkeyup="showkey()">
+
+    </form>
+    <br>
+    <button id="preview" onclick="perview()" class="btn btn-danger">预览结果</button>
+
+    <br>
+</div>
+
+
+<canvas id="canvas" ></canvas>
+<br><br>
+<hr>
+<hr>
+
+
+
+
+</body>
+<script>
+
+    $(document).ready(function(){
+        $('#download').hide();
+        $('#preview').click(function(){
+            $('#download').hide();
+            $('#success_info').empty();
+            $('#waiting_ico').addClass('fa fa-spinner fa-spin');
+
+        });
+    });
+
+</script>
+</html>
